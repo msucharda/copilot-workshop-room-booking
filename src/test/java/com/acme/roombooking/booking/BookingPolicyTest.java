@@ -1,5 +1,6 @@
 package com.acme.roombooking.booking;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -81,5 +82,37 @@ class BookingPolicyTest {
                 summer.validate(
                     Instant.parse("2026-07-02T04:59:00Z"), Instant.parse("2026-07-02T06:00:00Z")))
         .isInstanceOf(ApiException.class);
+  }
+
+  @ParameterizedTest
+  @CsvSource({"30,PT30M", "90,PT1H30M"})
+  void durationErrorsDescribeTheFullConfiguredLimit(int minutes, String expected) {
+    var limited =
+        new BookingPolicy(
+            new BookingPolicyProperties(
+                ZoneId.of("Europe/Bratislava"),
+                LocalTime.of(7, 0),
+                LocalTime.of(20, 0),
+                Duration.ofMinutes(minutes),
+                Duration.ofDays(90)),
+            Clock.fixed(Instant.parse("2026-11-02T07:00:00Z"), ZoneId.of("UTC")));
+    assertThatThrownBy(
+            () ->
+                limited.validate(
+                    Instant.parse("2026-11-03T08:00:00Z"), Instant.parse("2026-11-03T10:00:00Z")))
+        .isInstanceOfSatisfying(
+            ApiException.class, exception -> assertThat(exception.getMessage()).contains(expected));
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "2026-11-03T08:00:00.000000100Z,2026-11-03T09:00:00Z",
+    "2026-11-03T08:00:00Z,2026-11-03T09:00:00.000000100Z"
+  })
+  void eitherIntervalEndpointMustBeRepresentableAtDatabasePrecision(String start, String end) {
+    assertThatThrownBy(() -> policy.validate(Instant.parse(start), Instant.parse(end)))
+        .isInstanceOfSatisfying(
+            ApiException.class,
+            exception -> assertThat(exception.code()).isEqualTo("unsupported-time-precision"));
   }
 }

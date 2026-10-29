@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 public class BookingService {
+  public static final int MAX_PAGE_SIZE = 100;
+  public static final int MAX_PAGE_INDEX = Integer.MAX_VALUE / MAX_PAGE_SIZE;
   private static final Logger LOG = LoggerFactory.getLogger(BookingService.class);
   private final BookingRepository bookings;
   private final RoomRepository rooms;
@@ -35,6 +37,14 @@ public class BookingService {
 
   @PreAuthorize("hasRole('EMPLOYEE') and #username == authentication.name")
   public PageResponse<BookingView> list(String username, BookingStatus status, int page, int size) {
+    if (page < 0 || page > MAX_PAGE_INDEX || size < 1 || size > MAX_PAGE_SIZE) {
+      throw ApiException.invalid(
+          "invalid-pagination",
+          "Page must be between 0 and "
+              + MAX_PAGE_INDEX
+              + "; size must be between 1 and "
+              + MAX_PAGE_SIZE);
+    }
     var order = Sort.by(Sort.Direction.DESC, "startsAt").and(Sort.by("id"));
     return PageResponse.from(
         bookings.findOwned(username, status, PageRequest.of(page, size, order)), BookingView::from);

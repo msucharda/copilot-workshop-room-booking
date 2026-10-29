@@ -94,6 +94,8 @@ application process per working directory. Worktrees have separate database file
 Tests use in-memory H2, not your local data.
 
 - Booking timestamps are ISO-8601 instants with an offset, stored in UTC.
+- Interval endpoints must be exactly representable at microsecond precision;
+  trailing zeroes in fractional seconds are allowed. Finer precision returns 400.
 - Office hours are Monday-Friday, **07:00-20:00 Europe/Bratislava**.
   Summer time follows the zone database. Public holidays are not modeled.
 - A meeting must be in the future, last at most four hours, fit one working day
@@ -167,7 +169,7 @@ All `/api/**` routes require authentication. Inventory writes additionally requi
 | `PATCH /api/bookings/{id}` | Replace the title and attendee count of your future confirmed booking |
 | `POST /api/bookings/{id}/cancellation` | Cancel your future booking |
 
-Booking lists use zero-based `page`, `size` (1-100, default 20), and optional
+Booking lists use zero-based `page` (0-21474836), `size` (1-100, default 20), and optional
 `status=CONFIRMED|CANCELLED`. The response contains `items`, `page`, `size`,
 `totalElements` and `totalPages`. Room lists are ordered by code; availability
 returns the smallest suitable rooms first, breaking ties by code. Availability is
@@ -182,6 +184,8 @@ Errors use RFC 9457 `application/problem+json`. Domain errors have stable
 array. Client errors use 400 (invalid input/rules), 401 (authentication),
 403 (permission/CSRF), 404 (missing resource) or 409 (conflict). Unexpected errors
 are logged server-side and never include stack traces in the response.
+Configurable duration limits in error details use complete ISO-8601 durations
+(for example `PT30M` or `PT1H30M`), without truncating fractional hours.
 
 See [API usage notes](docs/api-usage.md) for additional request examples.
 

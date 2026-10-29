@@ -5,6 +5,7 @@ import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,14 +26,19 @@ public class BookingPolicy {
     if (startsAt == null || endsAt == null || !startsAt.isBefore(endsAt)) {
       throw ApiException.invalid("invalid-interval", "Start must be before end");
     }
+    if (!startsAt.truncatedTo(ChronoUnit.MICROS).equals(startsAt)
+        || !endsAt.truncatedTo(ChronoUnit.MICROS).equals(endsAt)) {
+      throw ApiException.invalid(
+          "unsupported-time-precision",
+          "Booking times must be exactly representable at microsecond precision");
+    }
     Instant now = clock.instant();
     if (startsAt.isBefore(now)) {
       throw ApiException.invalid("booking-in-past", "Bookings must start in the future");
     }
     if (Duration.between(startsAt, endsAt).compareTo(properties.maximumDuration()) > 0) {
       throw ApiException.invalid(
-          "booking-too-long",
-          "A booking cannot exceed " + properties.maximumDuration().toHours() + " hours");
+          "booking-too-long", "A booking cannot exceed " + properties.maximumDuration());
     }
     if (endsAt.isAfter(now.plus(properties.advanceWindow()))) {
       throw ApiException.invalid(

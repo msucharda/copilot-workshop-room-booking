@@ -31,6 +31,8 @@ Equipment values are `DISPLAY`, `VIDEO_CONFERENCING`, `WHITEBOARD`, `PROJECTOR`
 and `SPEAKERPHONE`.
 
 Availability search requires `startsAt` and `endsAt`, supports repeated equipment
-parameters, and requires all requested equipment. It never includes meeting
+parameters, and requires all requested equipment. Supplied equipment values must
+be nonblank and known enum values; omit the parameter for no equipment filter.
+It never includes meeting
 titles or owners. Choose an available room, then create the booking; another
 client may reserve it between those requests.

@@ -38,8 +38,8 @@ class BookingController {
   PageResponse<BookingView> list(
       Principal principal,
       @RequestParam(required = false) BookingStatus status,
-      @RequestParam(defaultValue = "0") @Min(0) int page,
-      @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
+      @RequestParam(defaultValue = "0") @Min(0) @Max(BookingService.MAX_PAGE_INDEX) int page,
+      @RequestParam(defaultValue = "20") @Min(1) @Max(BookingService.MAX_PAGE_SIZE) int size) {
     return service.list(principal.getName(), status, page, size);
   }
 

@@ -44,7 +44,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     return problem(
         HttpStatus.CONFLICT,
         "duplicate-resource",
-        "A resource with this code already exists",
+        "The request conflicts with an existing resource",
         request);
   }
 

@@ -12,7 +12,7 @@ copying JSON by hand. Export uses the existing private, paginated booking list.
 ## Acceptance criteria
 
 - Add authenticated `GET /api/booking-exports.csv`.
-- Accept the existing optional status, zero-based page (default 0) and size
+- Accept the existing optional status, zero-based page (0-21474836, default 0) and size
   (1-100, default 20). Export only that page, in the existing list order.
 - Always derive identity from the authenticated principal. Reuse
   `BookingService.list`; do not add repository access or an owner query parameter.
@@ -34,6 +34,7 @@ Create implementation files only in
 `src/main/java/com/acme/roombooking/booking/export/` and an API test at
 `src/test/java/com/acme/roombooking/booking/export/BookingExportIntegrationTest.java`.
 The existing service is public and returns `PageResponse<BookingView>`.
+Reuse its `MAX_PAGE_INDEX` and `MAX_PAGE_SIZE` validation limits.
 No schema, security configuration, README or shared test helper edits are needed.
 
 Run `.\mvnw.cmd '-Dtest=BookingExportIntegrationTest,AuthorizationIntegrationTest' test`,

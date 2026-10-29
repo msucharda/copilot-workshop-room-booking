@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Set;
 import org.springframework.validation.annotation.Validated;
@@ -38,7 +40,7 @@ class AvailabilityController {
       @RequestParam(required = false) @Positive Long buildingId,
       @RequestParam(required = false) @Positive Long floorId,
       @RequestParam(defaultValue = "1") @Min(1) @Max(200) int minimumCapacity,
-      @RequestParam(required = false) Set<Equipment> equipment) {
+      @RequestParam(required = false) @Size(min = 1) Set<@NotNull Equipment> equipment) {
     return service.search(
         startsAt,
         endsAt,
