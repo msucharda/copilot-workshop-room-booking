@@ -10,8 +10,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.acme.roombooking.ApiTestSupport;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
 
 class RoomScheduleIntegrationTest extends ApiTestSupport {
+  @Test
+  void rejectsDatesWhoseNextDayCannotBeRepresented() throws Exception {
+    mvc.perform(
+            get("/api/rooms/1/schedule")
+                .param("date", "+999999999-12-31")
+                .with(httpBasic("alice", "alice-local-only")))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+        .andExpect(jsonPath("$.type").value("urn:room-booking:problem:unsupported-schedule-date"));
+  }
+
   @Test
   void colleagueCanSeeBusyTimesButNotPrivateMeetingInformation() throws Exception {
     book("alice", 1, "2026-11-03T08:00:00Z", "2026-11-03T09:00:00Z")

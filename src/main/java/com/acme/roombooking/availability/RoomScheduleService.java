@@ -25,6 +25,10 @@ public class RoomScheduleService {
   }
 
   public RoomScheduleView get(long roomId, LocalDate date) {
+    if (LocalDate.MAX.equals(date)) {
+      throw ApiException.invalid(
+          "unsupported-schedule-date", "Schedule date must allow a representable next day");
+    }
     var room = rooms.findById(roomId).orElseThrow(() -> ApiException.notFound("Room"));
     var configuration = policy.configuration();
     var zone = configuration.zone();

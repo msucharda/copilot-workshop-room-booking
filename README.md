@@ -81,7 +81,7 @@ read or cancel another user's booking**. There is no impersonation parameter.
 
 HTTP Basic authenticates every request. CSRF protection remains enabled because
 browsers can automatically send Basic credentials. Read `/api/csrf`, retain its
-session cookie, and send the returned header on every POST/PUT. Do not disable CSRF
+session cookie, and send the returned header on every POST/PUT/PATCH/DELETE. Do not disable CSRF
 to make a client work. H2 Console, user registration and remote management endpoints
 are not enabled.
 
